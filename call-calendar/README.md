@@ -73,3 +73,15 @@ export default defineConfig([
 ])
 
 ```
+
+## Smoke test
+
+```sh
+npm ci
+npm run test:smoke
+```
+
+The test starts Vite on a free local port, checks the HTML and JavaScript entry
+point over HTTP, and renders `App` on the server to verify the initial screen.
+The server is closed after the tests. No browser is required; browser mounting,
+click interactions, and production builds are outside this smoke test's scope.
