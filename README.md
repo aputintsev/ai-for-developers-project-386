@@ -56,3 +56,46 @@ cd ai-for-developers-project-386
 ## О Хекслете
 
 [Хекслет](https://ru.hexlet.io/) — школа программирования: авторские программы обучения с практикой, поддержкой наставников и реальными проектами, которые остаются в резюме. Этот репозиторий — один из таких проектов.
+
+## Development and quality checks
+
+Install [mise](https://mise.jdx.dev/getting-started.html), then from the repository root:
+
+```sh
+mise trust
+mise install
+mise run setup
+mise run check
+```
+
+`setup` installs npm dependencies from the lockfile and installs hk Git hooks.
+`check` runs ESLint (warnings fail), secret history scanning, GitHub Actions lint,
+Renovate schema validation, TypeScript/Vite build, smoke tests, and OSV vulnerability
+scanning. OSV needs network access. GitHub Actions runs this same command on every
+push and pull request, and weekly to detect newly published vulnerabilities.
+The generated Hexlet workflow is maintained separately.
+
+Before commit, hk checks staged JavaScript/TypeScript and staged secrets. Before
+push, it runs `mise run check`. CI remains the gate when hooks are bypassed.
+`mise run fix` applies ESLint's available automatic fixes.
+
+```sh
+mise run dev        # foreground Vite
+mise run dev:start  # background Vite, managed by mise/pitchfork
+mise run dev:logs
+mise run dev:stop
+```
+
+Open http://localhost:5173 after starting the background server. Daemons are an
+experimental mise feature; they start only on request. Smoke tests manage their
+own isolated Vite server and do not require this background process.
+
+Renovate configuration is in `renovate.json`; enable the Renovate GitHub App for
+this repository to receive update PRs. Releases must age seven days before an
+update is proposed. The schema in `schemas/renovate.schema.json` is a snapshot of
+https://docs.renovatebot.com/renovate-schema.json and must be updated from that
+source, not edited manually. Tool versions live in `mise.toml`; npm dependencies
+are reproduced by `call-calendar/package-lock.json`.
+
+The npm override for `minimatch` keeps transitive copies on the patched v11 line
+(GHSA-g3hv-75wg-m249). Revisit the override when upstream dependencies upgrade.

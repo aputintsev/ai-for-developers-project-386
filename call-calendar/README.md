@@ -1,5 +1,15 @@
 # React + TypeScript + Vite
 
+## Lint
+
+```sh
+npm run lint
+npm run lint:fix
+```
+
+ESLint checks JavaScript, TypeScript, React Hooks, and Fast Refresh compatibility.
+`lint:fix` applies the available automatic fixes.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
