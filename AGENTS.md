@@ -65,6 +65,9 @@ Hexlet workflow. Keep actions pinned to full commit SHAs.
 
 Run `mise run check` from the repository root before considering a change done.
 CI runs the same command. Use `mise run setup` to install dependencies and hooks.
+Smoke tests bind a local port. Always request elevated permissions when running
+`mise run check`, subject to the environment's approval policy. When the sandbox
+blocks local listeners, also request elevated permissions for `mise run smoke`.
 
 Do not disable lint rules to pass checks. Exceptions require a human decision,
 a specific path and rule, and a reason. Security exceptions also require an
