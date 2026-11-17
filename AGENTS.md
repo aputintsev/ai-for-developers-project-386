@@ -73,3 +73,12 @@ expiry date enforced by a check.
 Do not manually edit `call-calendar/package-lock.json`, build output, or
 `schemas/renovate.schema.json`. Regenerate the lockfile with npm; fetch the schema
 from its documented upstream URL. Do not edit the generated Hexlet workflow.
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+This repository uses a single-context layout. See `docs/agents/domain.md`.
