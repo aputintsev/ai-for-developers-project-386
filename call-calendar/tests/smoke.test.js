@@ -32,9 +32,26 @@ test('Vite starts and serves the application entry point', async () => {
   expect(await entry.text()).toContain('createRoot')
 })
 
-test('the main application renders its initial screen', async () => {
+test('the Guest homepage offers all three navigation options', async () => {
   const { default: App } = await server.ssrLoadModule('/src/App.tsx')
   const html = renderToString(createElement(App))
-  expect(html).toContain('<h1>Get started</h1>')
-  expect(html).toMatch(/Count is (?:<!-- -->)?0/)
+  expect(html).toMatch(/<h1[^>]*>Календарь звонков<\/h1>/)
+  expect(html).toMatch(/<a[^>]*href="\/book"[^>]*>Записаться<\/a>/)
+  expect(html).toMatch(/<a[^>]*href="\/bookings"[^>]*>Предстоящие записи<\/a>/)
+  expect(html).toMatch(/<a[^>]*href="\/owner"[^>]*>Раздел Владельца<\/a>/)
+})
+
+test.each([
+  ['/book', 'Выбор типа встречи'],
+  ['/bookings', 'Предстоящие записи'],
+  ['/owner', 'Раздел Владельца'],
+])('the destination %s gives the visitor a way back', async (pathname, title) => {
+  const response = await fetch(`${baseUrl}${pathname}`)
+  expect(response.status).toBe(200)
+  expect(await response.text()).toContain('<div id="root"></div>')
+
+  const { default: App } = await server.ssrLoadModule('/src/App.tsx')
+  const html = renderToString(createElement(App, { pathname }))
+  expect(html).toContain(`>${title}</h1>`)
+  expect(html).toMatch(/<a[^>]*href="\/"[^>]*>На главную<\/a>/)
 })
