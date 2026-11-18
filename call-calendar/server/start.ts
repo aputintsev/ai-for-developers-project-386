@@ -58,4 +58,5 @@ const server = createServer((request, response) => {
   void serveFile(response, extname(pathname) ? pathname : '/index.html')
 })
 
-server.listen(8080, '0.0.0.0')
+const port = Number(process.env.PORT ?? 8080)
+server.listen(port, '0.0.0.0')
