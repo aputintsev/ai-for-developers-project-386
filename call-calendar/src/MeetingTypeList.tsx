@@ -1,30 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import BookingAvailability from './BookingAvailability'
 import CreateMeetingTypeForm from './CreateMeetingTypeForm'
 import { listMeetingTypes } from './api/generated/sdk.gen'
-import type { MeetingType } from './api/generated/models/meetingType'
+import { useRemoteList } from './lib/use-remote-list'
 
 function MeetingTypeList({ allowCreation = false }: { allowCreation?: boolean }) {
   const [selectedId, setSelectedId] = useState<string>()
-  const [meetingTypes, setMeetingTypes] = useState<MeetingType[] | 'loading' | 'error'>('loading')
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    async function load() {
-      try {
-        const { data, status } = await listMeetingTypes({ signal: controller.signal })
-        if (!controller.signal.aborted) {
-          setMeetingTypes(status === 200 && Array.isArray(data) ? data : 'error')
-        }
-      } catch {
-        if (!controller.signal.aborted) setMeetingTypes('error')
-      }
-    }
-
-    void load()
-    return () => controller.abort()
-  }, [])
+  const [submitting, setSubmitting] = useState(false)
+  const [meetingTypes, setMeetingTypes] = useRemoteList(listMeetingTypes)
 
   if (meetingTypes === 'loading') {
     return <p className="mt-6 text-muted-foreground" role="status">Загружаем типы встреч…</p>
@@ -47,6 +30,7 @@ function MeetingTypeList({ allowCreation = false }: { allowCreation?: boolean })
                   <button
                     type="button"
                     aria-pressed={selectedId === meetingType.id}
+                    disabled={submitting}
                     onClick={() => setSelectedId(meetingType.id)}
                     className="min-h-11 cursor-pointer rounded-sm text-left underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
                   >
@@ -60,7 +44,14 @@ function MeetingTypeList({ allowCreation = false }: { allowCreation?: boolean })
           ))}
         </ul>
       )}
-      {selectedType && <BookingAvailability key={selectedType.id} meetingType={selectedType} />}
+      {selectedType && (
+        <BookingAvailability
+          key={selectedType.id}
+          meetingType={selectedType}
+          submitting={submitting}
+          setSubmitting={setSubmitting}
+        />
+      )}
       {allowCreation && (
         <CreateMeetingTypeForm onCreated={(created) => {
           setMeetingTypes((current) => Array.isArray(current) ? [...current, created] : [created])

@@ -6,29 +6,33 @@ import type { CreateBooking400FieldErrors } from './api/generated/models/createB
 import type { MeetingType } from './api/generated/models/meetingType'
 import type { Slot } from './api/generated/models/slot'
 import { Button, buttonVariants } from './components/ui/button'
-import { bookingWindow, calendarTimeZone, moscowDate, moscowTime } from './lib/calendar-time'
+import { bookingWindow, calendarTimeZone, moscowDateDetails, moscowTimeRange } from './lib/calendar-time'
 
 const inputClass = 'min-h-11 rounded-md border bg-background px-3'
 
-function slotLabel({ start, end }: Slot) {
-  return `${moscowTime(start)}–${moscowTime(end)}`
-}
-
 function BookingDetails({ meetingType, slot }: { meetingType: MeetingType; slot: Slot }) {
-  const date = moscowDate(new Date(slot.start))
+  const { date, dateLabel } = moscowDateDetails(slot.start)
   return (
     <dl className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-[auto_1fr]">
       <dt className="text-muted-foreground">Тип встречи</dt>
       <dd>{meetingType.name}</dd>
       <dt className="text-muted-foreground">Дата</dt>
-      <dd><time dateTime={date}>{date.split('-').reverse().join('.')}</time></dd>
+      <dd><time dateTime={date}>{dateLabel}</time></dd>
       <dt className="text-muted-foreground">Время по Москве ({calendarTimeZone})</dt>
-      <dd>{slotLabel(slot)}</dd>
+      <dd>{moscowTimeRange(slot)}</dd>
     </dl>
   )
 }
 
-function BookingDay({ meetingType, date }: { meetingType: MeetingType; date: string }) {
+type BookingSubmission = {
+  submitting: boolean
+  setSubmitting: (submitting: boolean) => void
+}
+
+function BookingDay({ meetingType, date, submitting, setSubmitting }: BookingSubmission & {
+  meetingType: MeetingType
+  date: string
+}) {
   const [availability, setAvailability] = useState<Slot[] | 'loading' | string>('loading')
   const [revision, setRevision] = useState(0)
   const [slot, setSlot] = useState<Slot>()
@@ -37,7 +41,6 @@ function BookingDay({ meetingType, date }: { meetingType: MeetingType; date: str
   const [guestEmail, setGuestEmail] = useState('')
   const [message, setMessage] = useState('')
   const [fieldErrors, setFieldErrors] = useState<CreateBooking400FieldErrors>({})
-  const [submitting, setSubmitting] = useState(false)
   const meetingTypeId = meetingType.id
 
   useEffect(() => {
@@ -64,7 +67,11 @@ function BookingDay({ meetingType, date }: { meetingType: MeetingType; date: str
     setMessage('')
     setFieldErrors({})
     try {
-      const { status, data } = await createBooking({ meetingTypeId, start: slot.start, guestName, guestEmail })
+      const submit = () => createBooking({ meetingTypeId, start: slot.start, guestName, guestEmail })
+      // Let the first response set the Guest profile cookie before another tab submits.
+      const { status, data } = await (navigator.locks
+        ? navigator.locks.request('calendar-guest-booking', submit)
+        : submit())
       if (status === 201) {
         setBooking(data)
       } else {
@@ -164,7 +171,7 @@ function AvailableSlots({ availability, onSelect }: {
       {availability.map((slot) => (
         <li key={slot.start}>
           <Button type="button" variant="outline" className="min-h-11 w-full" onClick={() => onSelect(slot)}>
-            {slotLabel(slot)}
+            {moscowTimeRange(slot)}
           </Button>
         </li>
       ))}
@@ -172,7 +179,9 @@ function AvailableSlots({ availability, onSelect }: {
   )
 }
 
-export default function BookingAvailability({ meetingType }: { meetingType: MeetingType }) {
+export default function BookingAvailability({ meetingType, submitting, setSubmitting }: BookingSubmission & {
+  meetingType: MeetingType
+}) {
   const [date, setDate] = useState('')
   const { first, last } = bookingWindow(new Date())
 
@@ -186,11 +195,20 @@ export default function BookingAvailability({ meetingType }: { meetingType: Meet
           min={first}
           max={last}
           value={date}
+          disabled={submitting}
           onChange={(event) => setDate(event.currentTarget.value)}
         />
       </label>
       <p className="text-sm text-muted-foreground">Время по Москве ({calendarTimeZone})</p>
-      {date && <BookingDay key={date} meetingType={meetingType} date={date} />}
+      {date && (
+        <BookingDay
+          key={date}
+          meetingType={meetingType}
+          date={date}
+          submitting={submitting}
+          setSubmitting={setSubmitting}
+        />
+      )}
     </section>
   )
 }

@@ -29,6 +29,15 @@ export function bookingWindow(now: Date) {
   }
 }
 
-export function moscowTime(instant: string) {
+function moscowTime(instant: string) {
   return moscowTimeFormatter.format(new Date(instant))
+}
+
+export function moscowDateDetails(instant: string) {
+  const date = moscowDate(new Date(instant))
+  return { date, dateLabel: date.split('-').reverse().join('.') }
+}
+
+export function moscowTimeRange({ start, end }: { start: string; end: string }) {
+  return `${moscowTime(start)}–${moscowTime(end)}`
 }

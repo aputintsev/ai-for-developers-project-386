@@ -125,8 +125,28 @@ test('a Guest keeps contact details after a slot conflict and confirms a new tim
 
     const competing = await book(baseUrl, { ...guest, meetingTypeId: intro.id, start })
     expect(competing.status).toBe(201)
+    const pending = Promise.withResolvers()
+    const release = Promise.withResolvers()
+    await page.route('**/api/bookings', async (route) => {
+      pending.resolve()
+      await release.promise
+      await route.continue()
+    }, { times: 1 })
+
     await confirm.click()
+    await pending.promise
+    const dateControl = page.getByLabel('Дата встречи')
+    const typeControl = page.getByRole('button', { name: followUp.name, exact: true })
+    try {
+      expect(await dateControl.isDisabled()).toBe(true)
+      expect(await typeControl.isDisabled()).toBe(true)
+    } finally {
+      release.resolve()
+    }
+
     await page.getByText(conflictMessage, { exact: true }).waitFor()
+    expect(await dateControl.isEnabled()).toBe(true)
+    expect(await typeControl.isEnabled()).toBe(true)
     const nextSlot = page.getByRole('button', { name: '10:30–11:00' })
     await nextSlot.waitFor()
     expect(await page.getByRole('button', { name: '10:00–10:30' }).count()).toBe(0)
@@ -141,6 +161,61 @@ test('a Guest keeps contact details after a slot conflict and confirms a new tim
     await confirmation.getByText('10:30–11:00', { exact: true }).waitFor()
     expect(await confirmation.getByRole('link', { name: 'Предстоящие записи' }).getAttribute('href'))
       .toBe('/bookings')
+  } finally {
+    await browser.close()
+  }
+}, 15_000)
+
+test('two fresh tabs keep both bookings in the same Guest profile', async () => {
+  const baseUrl = await startCalendar()
+  const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHROMIUM_CHANNEL })
+  try {
+    const context = await browser.newContext()
+    const [first, second] = await Promise.all([context.newPage(), context.newPage()])
+    await Promise.all([first, second].map(async (page, index) => {
+      await page.clock.setFixedTime(now)
+      await page.goto(`${baseUrl}/book`)
+      await page.getByRole('button', { name: intro.name, exact: true }).click()
+      await page.getByLabel('Дата встречи').fill('2026-11-20')
+      await page.getByRole('button', { name: index === 0 ? '10:00–10:30' : '10:30–11:00' }).click()
+      await page.getByLabel('Имя', { exact: true }).fill(guest.guestName)
+      await page.getByLabel('Email', { exact: true }).fill(guest.guestEmail)
+    }))
+
+    const firstRequest = Promise.withResolvers()
+    const releaseFirstResponse = Promise.withResolvers()
+    await first.route('**/api/bookings', async (route) => {
+      const response = await fetch(route.request().url(), {
+        method: 'POST',
+        headers: await route.request().allHeaders(),
+        body: route.request().postData(),
+      })
+      firstRequest.resolve()
+      await releaseFirstResponse.promise
+      await route.fulfill({
+        status: response.status,
+        headers: Object.fromEntries(response.headers),
+        body: await response.text(),
+      })
+    })
+
+    await first.getByRole('button', { name: 'Подтвердить запись' }).click()
+    await firstRequest.promise
+    try {
+      const secondRequest = second.waitForRequest('**/api/bookings', { timeout: 500 })
+      await second.getByRole('button', { name: 'Подтвердить запись' }).click()
+      // Let an uncoordinated second request complete before releasing the first.
+      await secondRequest.then(() => second.getByRole('heading', { name: 'Вы записаны' }).waitFor(), () => {})
+    } finally {
+      releaseFirstResponse.resolve()
+    }
+
+    await Promise.all([first, second].map(async (page) => {
+      await page.getByRole('heading', { name: 'Вы записаны' }).waitFor()
+      await page.getByRole('link', { name: 'Предстоящие записи' }).click()
+      await page.getByText('10:00–10:30', { exact: true }).waitFor({ timeout: 3_000 })
+      await page.getByText('10:30–11:00', { exact: true }).waitFor({ timeout: 3_000 })
+    }))
   } finally {
     await browser.close()
   }

@@ -1,29 +1,10 @@
-import { useEffect, useState } from 'react'
-import type { GuestBooking } from './api/generated/models/guestBooking'
 import { listGuestBookings } from './api/generated/sdk.gen'
 import { buttonVariants } from './components/ui/button'
-import { calendarTimeZone, moscowDate, moscowTime } from './lib/calendar-time'
+import { calendarTimeZone, moscowDateDetails, moscowTimeRange } from './lib/calendar-time'
+import { useRemoteList } from './lib/use-remote-list'
 
 function GuestBookingList({ bookingPath }: { bookingPath: string }) {
-  const [bookings, setBookings] = useState<GuestBooking[] | 'loading' | 'error'>('loading')
-
-  useEffect(() => {
-    const controller = new AbortController()
-
-    async function load() {
-      try {
-        const { data, status } = await listGuestBookings({ signal: controller.signal })
-        if (!controller.signal.aborted) {
-          setBookings(status === 200 && Array.isArray(data) ? data : 'error')
-        }
-      } catch {
-        if (!controller.signal.aborted) setBookings('error')
-      }
-    }
-
-    void load()
-    return () => controller.abort()
-  }, [])
+  const [bookings] = useRemoteList(listGuestBookings)
 
   if (bookings === 'loading') {
     return <p className="mt-6 text-muted-foreground" role="status">Загружаем записи…</p>
@@ -47,12 +28,12 @@ function GuestBookingList({ bookingPath }: { bookingPath: string }) {
       <p className="text-sm text-muted-foreground">Время по Москве ({calendarTimeZone})</p>
       <ul className="mt-3 grid gap-3">
         {bookings.map(({ id, meetingType, start, end }) => {
-          const date = moscowDate(new Date(start))
+          const { date, dateLabel } = moscowDateDetails(start)
           return (
             <li key={id} className="grid gap-1 rounded-lg border p-4 text-sm">
               <h2 className="text-base font-semibold">{meetingType.name}</h2>
-              <time dateTime={date}>{date.split('-').reverse().join('.')}</time>
-              <p>{moscowTime(start)}–{moscowTime(end)}</p>
+              <time dateTime={date}>{dateLabel}</time>
+              <p>{moscowTimeRange({ start, end })}</p>
               <p>{meetingType.durationMinutes} мин</p>
             </li>
           )
