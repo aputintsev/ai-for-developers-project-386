@@ -6,7 +6,7 @@ function OwnerBookingList() {
   const [bookings] = useRemoteList(listOwnerBookings)
 
   return (
-    <section aria-labelledby="owner-bookings" className="mt-8">
+    <section aria-labelledby="owner-bookings" className="rounded-xl border bg-muted/40 p-4 sm:p-5">
       <h2 id="owner-bookings" className="text-xl font-semibold">Предстоящие записи</h2>
       {bookings === 'loading' && <p className="mt-3 text-muted-foreground" role="status">Загружаем записи…</p>}
       {bookings === 'error' && <p className="mt-3" role="alert">Не удалось загрузить записи.</p>}

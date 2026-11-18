@@ -48,7 +48,7 @@ function CreateMeetingTypeForm({ onCreated }: { onCreated: (meetingType: Meeting
   }
 
   return (
-    <form className="mt-8" onSubmit={submit} noValidate>
+    <form aria-labelledby="create-meeting-type" className="mt-4" onSubmit={submit} noValidate>
       <fieldset className="grid gap-4" disabled={submitting}>
         {fields.map(({ name, label }) => {
           const fieldError = error?.fieldErrors[name]
