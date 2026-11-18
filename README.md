@@ -3,6 +3,8 @@
 
 [![hexlet-check](https://github.com/aputintsev/ai-for-developers-project-386/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/aputintsev/ai-for-developers-project-386/actions)
 
+[Открыть приложение на Render](https://call-calendar-tx7f.onrender.com)
+
 «Запись на звонок» это упрощённый сервис бронирования времени по мотивам Cal.com.
 
 Cal.com это сервис, где пользователь публикует доступные интервалы, а другой человек выбирает свободное время и бронирует встречу. У нашего приложения тот же базовый сценарий: владелец публикует доступное время для встреч, а другой пользователь выбирает свободный слот и записывается на звонок.
@@ -71,6 +73,25 @@ docker rm call-calendar
 ```
 
 <!-- Добавьте примеры запуска и запись asciinema — именно это смотрит работодатель -->
+
+## Подключение Render MCP
+
+Render MCP позволяет проверять состояние сервиса `call-calendar`, смотреть логи
+и запускать развёртывание из Codex. Для просмотра приложения подключение не требуется.
+
+1. Добавьте Render MCP в Codex.
+
+   ```sh
+   codex mcp add render --url https://mcp.render.com/mcp --oauth-client-id codex
+   ```
+
+2. Войдите в Render в браузере и подтвердите доступ через OAuth. Ключ API для
+   этого способа подключения не нужен.
+3. Попросите Codex вывести список рабочих пространств Render. Выберите
+   пространство с сервисом `call-calendar` и попросите вывести список его сервисов,
+   чтобы проверить подключение.
+
+[Документация Render MCP](https://render.com/docs/mcp-server)
 
 ---
 
