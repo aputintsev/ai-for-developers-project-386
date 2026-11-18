@@ -110,3 +110,19 @@ mise run generate:sdk
 
 Browser tests default to Playwright Chromium. Set `PLAYWRIGHT_CHROMIUM_CHANNEL=chrome`
 to run them with an existing Google Chrome installation.
+
+## Releases
+
+Release Please processes Conventional Commits on pushes to `main`. It opens or
+updates a release PR with the proposed version, changelog, npm package metadata,
+lockfile, and release manifest. Merging the release PR lets the next workflow run
+create the GitHub release and its `vX.Y.Z` tag.
+
+The first release is `0.1.0`. Subsequent releases use a minor bump for `feat:`, a
+patch bump for `fix:`, and a major bump for a breaking change marked with `!` or
+a `BREAKING CHANGE:` footer.
+
+The workflow uses the built-in `GITHUB_TOKEN`. A repository administrator must
+enable **Allow GitHub Actions to create and approve pull requests** under
+**Settings → Actions → General → Workflow permissions** before the workflow can
+open a release PR.
