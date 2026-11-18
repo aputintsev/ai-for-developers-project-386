@@ -6,14 +6,14 @@ COPY call-calendar/index.html call-calendar/tsconfig*.json call-calendar/vite.co
 COPY call-calendar/public ./public
 COPY call-calendar/server ./server
 COPY call-calendar/src ./src
-RUN npm run build
+RUN npm run build && npm exec -- vite build --ssr server/start.ts --outDir dist-ssr
 
 FROM node:24.22.3-bookworm-slim
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app/package.json ./
 COPY --from=build /app/dist ./dist
-COPY --from=build /app/server ./server
+COPY --from=build /app/dist-ssr ./dist-ssr
 USER node
 EXPOSE 8080
-CMD ["node", "server/start.ts"]
+CMD ["node", "dist-ssr/start.js"]
