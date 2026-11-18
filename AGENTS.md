@@ -20,6 +20,7 @@ Run commands from the repository root:
 - `mise run build`: type-check and build into `call-calendar/dist/`.
 - `mise run smoke`: run the startup tests.
 - `mise run lint` / `mise run fix`: check code or apply available ESLint fixes.
+- `mise run generate:api`: generate OpenAPI and the client SDK from TypeSpec.
 - `mise run check`: run all quality gates, including security scans; OSV requires network access.
 
 ## Commit message conventions
@@ -28,6 +29,9 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) fo
 <type>[optional scope]: <description>
 [optional body]
 [optional footer(s)]
+
+Append the issue number to the subject of each commit that implements a ticket.
+Example: `feat: запись на свободный слот (#12)`.
 
 Types:
 feat: New feature
@@ -54,6 +58,11 @@ echo "feat: add new feature" | npx commitlint
 npx commitlint --from HEAD~1 --to HEAD
 
 ## Security & Generated Files
+
+Edit `call-calendar/api/main.tsp` to change the API contract. Regenerate
+`call-calendar/api/openapi.yaml` and `call-calendar/src/api/generated/` with
+`mise run generate:api`. Do not edit these generated files by hand. Commit
+the generated changes with the contract.
 
 Never commit secrets. Do not disable rules to pass checks: exceptions require a
 human decision, a specific path and rule, and a reason; security exceptions also

@@ -19,6 +19,8 @@ Cal.com это сервис, где пользователь публикует 
 
 Данные хранятся в памяти процесса. Перезапуск сбрасывает записи.
 
+Одновременные записи из нескольких вкладок одного профиля браузера координируются через Web Locks. Для этого нужен браузер с поддержкой Web Locks и адрес HTTPS или localhost.
+
 Учебный проект Хекслета: https://ru.hexlet.io/programs/ai-for-developers
 Как это должно работать (примеры экранов): https://files.hexlet.app/a/2ipc5m
 
@@ -40,7 +42,33 @@ cd ai-for-developers-project-386
 
 ## Использование
 
-Приложение должно собираться в Docker-образ и запускаться в контейнере.
+Из корня репозитория соберите образ и запустите контейнер.
+
+```sh
+docker build -t call-calendar .
+docker run -d --name call-calendar -p 127.0.0.1:8080:8080 call-calendar
+```
+
+1. Откройте http://localhost:8080, перейдите в раздел Владельца и создайте тип встречи.
+2. Вернитесь на главную, нажмите «Записаться» и проверьте, что Гость видит созданный тип встречи.
+3. Проверьте ответ API из контейнера. Первая строка должна быть `200`, вторая — JSON-массив с созданным типом встречи.
+
+```sh
+docker exec call-calendar node -e 'fetch("http://127.0.0.1:8080/api/meeting-types").then(async (response) => { console.log(response.status); console.log(await response.text()) })'
+```
+
+Перезапустите контейнер и повторите запрос к API. После перезапуска он возвращает `200` и пустой массив `[]`, поскольку данные хранятся в памяти процесса.
+
+```sh
+docker restart call-calendar
+```
+
+Когда закончите проверку, остановите и удалите контейнер.
+
+```sh
+docker stop call-calendar
+docker rm call-calendar
+```
 
 <!-- Добавьте примеры запуска и запись asciinema — именно это смотрит работодатель -->
 
@@ -68,7 +96,7 @@ mise run setup
 mise run check
 ```
 
-`setup` installs npm dependencies from the lockfile and installs hk Git hooks.
+`setup` installs npm dependencies from the lockfile, Playwright Chromium, and hk Git hooks.
 `check` runs ESLint (warnings fail), secret history scanning, GitHub Actions lint,
 Renovate schema validation, TypeScript/Vite build, smoke tests, and OSV vulnerability
 scanning. OSV needs network access. GitHub Actions runs this same command on every
@@ -99,3 +127,29 @@ are reproduced by `call-calendar/package-lock.json`.
 
 The npm override for `minimatch` keeps transitive copies on the patched v11 line
 (GHSA-g3hv-75wg-m249). Revisit the override when upstream dependencies upgrade.
+
+After editing the API contract in `call-calendar/api/main.tsp`, regenerate OpenAPI
+and the TypeScript SDK in order.
+
+```sh
+mise run generate:api
+```
+
+Browser tests default to Playwright Chromium. Set `PLAYWRIGHT_CHROMIUM_CHANNEL=chrome`
+to run them with an existing Google Chrome installation.
+
+## Releases
+
+Release Please processes Conventional Commits on pushes to `main`. It opens or
+updates a release PR with the proposed version, changelog, npm package metadata,
+lockfile, and release manifest. Merging the release PR lets the next workflow run
+create the GitHub release and its `vX.Y.Z` tag.
+
+The first release is `0.1.0`. Subsequent releases use a minor bump for `feat:`, a
+patch bump for `fix:`, and a major bump for a breaking change marked with `!` or
+a `BREAKING CHANGE:` footer.
+
+The workflow uses the built-in `GITHUB_TOKEN`. A repository administrator must
+enable **Allow GitHub Actions to create and approve pull requests** under
+**Settings → Actions → General → Workflow permissions** before the workflow can
+open a release PR.

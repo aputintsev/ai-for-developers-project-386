@@ -1,3 +1,6 @@
+import GuestBookingList from './GuestBookingList'
+import MeetingTypeList from './MeetingTypeList'
+import OwnerPage from './OwnerPage'
 import { buttonVariants } from './components/ui/button'
 
 const bookingPath = '/book'
@@ -14,9 +17,10 @@ const textLink = 'w-fit rounded-sm underline underline-offset-4 focus-visible:ou
 
 function App({ pathname = '/' }: { pathname?: string }) {
   const isHome = pathname === '/'
+  const currentPath = pathname.replace(/\/$/, '')
   const title = isHome
     ? 'Календарь звонков'
-    : destinationTitles.get(pathname.replace(/\/$/, '')) ?? 'Страница не найдена'
+    : destinationTitles.get(currentPath) ?? 'Страница не найдена'
 
   return (
     <main className="grid min-h-dvh place-items-center bg-muted px-4 py-12">
@@ -35,7 +39,12 @@ function App({ pathname = '/' }: { pathname?: string }) {
             </a>
           </nav>
         ) : (
-          <a href="/" className={`mt-8 inline-block ${textLink}`}>На главную</a>
+          <>
+            {currentPath === bookingPath && <MeetingTypeList />}
+            {currentPath === upcomingBookingsPath && <GuestBookingList bookingPath={bookingPath} />}
+            {currentPath === ownerPath && <OwnerPage />}
+            <a href="/" className={`mt-8 inline-block ${textLink}`}>На главную</a>
+          </>
         )}
       </section>
     </main>
