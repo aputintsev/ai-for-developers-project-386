@@ -1,3 +1,4 @@
+import GuestBookingList from './GuestBookingList'
 import MeetingTypeList from './MeetingTypeList'
 import OwnerPage from './OwnerPage'
 import { buttonVariants } from './components/ui/button'
@@ -40,6 +41,7 @@ function App({ pathname = '/' }: { pathname?: string }) {
         ) : (
           <>
             {currentPath === bookingPath && <MeetingTypeList />}
+            {currentPath === upcomingBookingsPath && <GuestBookingList bookingPath={bookingPath} />}
             {currentPath === ownerPath && <OwnerPage />}
             <a href="/" className={`mt-8 inline-block ${textLink}`}>На главную</a>
           </>

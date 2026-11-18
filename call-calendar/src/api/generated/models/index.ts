@@ -17,6 +17,7 @@ export * from './createMeetingType400FieldErrors.ts';
 export * from './createMeetingType409.ts';
 export * from './createMeetingType409FieldErrors.ts';
 export * from './createMeetingTypeInput.ts';
+export * from './guestBooking.ts';
 export * from './listSlots400.ts';
 export * from './listSlots404.ts';
 export * from './listSlotsParams.ts';

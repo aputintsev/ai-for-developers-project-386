@@ -13,6 +13,7 @@ import type {
   CreateMeetingType400,
   CreateMeetingType409,
   CreateMeetingTypeInput,
+  GuestBooking,
   ListSlots400,
   ListSlots404,
   ListSlotsParams,
@@ -87,6 +88,46 @@ export const createBooking = async (createBookingInput: CreateBookingInput, opti
 
   const data: createBookingResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as createBookingResponse
+}
+
+
+
+export type listGuestBookingsResponse200 = {
+  data: GuestBooking[]
+  status: 200
+}
+
+export type listGuestBookingsResponseSuccess = (listGuestBookingsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listGuestBookingsResponse = (listGuestBookingsResponseSuccess)
+
+export const getListGuestBookingsUrl = () => {
+
+
+
+
+  return `${globalThis.location?.origin ?? ""}/api/guest/bookings`
+}
+
+export const listGuestBookings = async ( options?: RequestInit): Promise<listGuestBookingsResponse> => {
+
+  const res = await fetch(getListGuestBookingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: listGuestBookingsResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listGuestBookingsResponse
 }
 
 

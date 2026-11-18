@@ -140,3 +140,10 @@ op createBooking(@body input: CreateBookingInput):
 @route("/api/owner/bookings")
 @operationId("listOwnerBookings")
 op listOwnerBookings(): Booking[];
+
+model GuestBooking is OmitProperties<Booking, "guestName" | "guestEmail">;
+
+@get
+@route("/api/guest/bookings")
+@operationId("listGuestBookings")
+op listGuestBookings(): GuestBooking[];

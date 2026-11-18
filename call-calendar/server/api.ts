@@ -103,6 +103,15 @@ export function createCalendarApi(
 
   return function handleCalendarApi(request: IncomingMessage, response: ServerResponse) {
     const { pathname, searchParams } = new URL(request.url ?? '/', 'http://localhost')
+    if (pathname === '/api/guest/bookings' && request.method === 'GET') {
+      const profileKey = guestProfileKey(request)
+      const upcoming = profileKey ? bookings.listUpcoming(now(), profileKey) : []
+      response.setHeader('Cache-Control', 'no-store')
+      sendJson(response, 200, upcoming.map(({ id, meetingType, start, end }) => ({
+        id, meetingType, start, end,
+      })))
+      return true
+    }
     if (pathname === '/api/owner/bookings' && request.method === 'GET') {
       sendJson(response, 200, bookings.listUpcoming(now()))
       return true
