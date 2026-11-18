@@ -4,8 +4,8 @@
  * Календарь звонков
  * OpenAPI spec version: 0.0.0
  */
-import type { AvailabilityTimeZone } from './availabilityTimeZone';
-import type { Slot } from './slot';
+import type { AvailabilityTimeZone } from './availabilityTimeZone.ts';
+import type { Slot } from './slot.ts';
 
 export interface Availability {
   timeZone: AvailabilityTimeZone;

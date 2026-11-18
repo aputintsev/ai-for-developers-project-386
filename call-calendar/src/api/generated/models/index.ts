@@ -5,15 +5,20 @@
  * OpenAPI spec version: 0.0.0
  */
 
-export * from './availability';
-export * from './availabilityTimeZone';
-export * from './createMeetingType400';
-export * from './createMeetingType400FieldErrors';
-export * from './createMeetingType409';
-export * from './createMeetingType409FieldErrors';
-export * from './createMeetingTypeInput';
-export * from './listSlots400';
-export * from './listSlots404';
-export * from './listSlotsParams';
-export * from './meetingType';
-export * from './slot';
+export * from './availability.ts';
+export * from './availabilityTimeZone.ts';
+export * from './booking.ts';
+export * from './createBooking400.ts';
+export * from './createBooking400FieldErrors.ts';
+export * from './createBooking409.ts';
+export * from './createBookingInput.ts';
+export * from './createMeetingType400.ts';
+export * from './createMeetingType400FieldErrors.ts';
+export * from './createMeetingType409.ts';
+export * from './createMeetingType409FieldErrors.ts';
+export * from './createMeetingTypeInput.ts';
+export * from './listSlots400.ts';
+export * from './listSlots404.ts';
+export * from './listSlotsParams.ts';
+export * from './meetingType.ts';
+export * from './slot.ts';

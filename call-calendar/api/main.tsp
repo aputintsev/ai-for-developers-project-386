@@ -87,3 +87,51 @@ model AvailabilityMeetingTypeNotFound {
 @operationId("listSlots")
 op listSlots(@path meetingTypeId: string, @query date: plainDate):
   Availability | AvailabilityDateError | AvailabilityMeetingTypeNotFound;
+
+model CreateBookingInput {
+  meetingTypeId: string;
+  start: utcDateTime;
+  @minLength(1) guestName: string;
+  @format("email") guestEmail: string;
+}
+
+model Booking extends Slot {
+  id: string;
+  meetingType: MeetingType;
+  guestName: string;
+  guestEmail: string;
+}
+
+model BookingCreated {
+  @statusCode statusCode: 201;
+  @header("Set-Cookie") guestProfileCookie?: string;
+  @body booking: Booking;
+}
+
+@error
+model BookingValidationError {
+  @statusCode statusCode: 400;
+  @body error: {
+    message: string;
+    fieldErrors: {
+      meetingTypeId?: string;
+      start?: string;
+      guestName?: string;
+      guestEmail?: string;
+    };
+  };
+}
+
+@error
+model BookingTimeConflict {
+  @statusCode statusCode: 409;
+  @body error: {
+    message: string;
+  };
+}
+
+@post
+@route("/api/bookings")
+@operationId("createBooking")
+op createBooking(@body input: CreateBookingInput):
+  BookingCreated | BookingValidationError | BookingTimeConflict;

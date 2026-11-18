@@ -32,6 +32,8 @@ function MeetingTypeList({ allowCreation = false }: { allowCreation?: boolean })
   if (meetingTypes === 'error') {
     return <p className="mt-6" role="alert">Не удалось загрузить типы встреч.</p>
   }
+  const selectedType = meetingTypes.find(({ id }) => id === selectedId)
+
   return (
     <>
       {meetingTypes.length === 0 ? (
@@ -58,7 +60,7 @@ function MeetingTypeList({ allowCreation = false }: { allowCreation?: boolean })
           ))}
         </ul>
       )}
-      {selectedId && <BookingAvailability key={selectedId} meetingTypeId={selectedId} />}
+      {selectedType && <BookingAvailability key={selectedType.id} meetingType={selectedType} />}
       {allowCreation && (
         <CreateMeetingTypeForm onCreated={(created) => {
           setMeetingTypes((current) => Array.isArray(current) ? [...current, created] : [created])
