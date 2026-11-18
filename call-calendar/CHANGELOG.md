@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1](https://github.com/aputintsev/ai-for-developers-project-386/compare/v0.1.0...v0.1.1) (2026-11-18)
+
+
+### Bug Fixes
+
+* bring slot conflict message into view ([bd870af](https://github.com/aputintsev/ai-for-developers-project-386/commit/bd870af5b993a257e7e91c9a8880dccf788e25d4))
+* honor PORT in Docker and document booking terms ([8a29913](https://github.com/aputintsev/ai-for-developers-project-386/commit/8a2991340d3231f6365f59e424d053c5efb987bf))
+* separate owner dashboard sections ([6c61963](https://github.com/aputintsev/ai-for-developers-project-386/commit/6c619639e7a5c7c3a327282058a72a8baab88306))
+
 ## 0.1.0 (2026-11-18)
 
 
