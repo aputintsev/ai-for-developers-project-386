@@ -5,8 +5,31 @@
  * OpenAPI spec version: 0.0.0
  */
 import type {
+  CreateMeetingType400,
+  CreateMeetingType409,
+  CreateMeetingTypeInput,
   MeetingType
 } from './models';
+
+const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string | undefined>)[]) => {
+  const seen = new Set<string>();
+  const layers: [string, string | readonly string[]][][] = [];
+  for (const source of sources.reverse()) {
+    if (!source) continue;
+    const entries = source instanceof Headers
+      ? source.entries()
+      : Symbol.iterator in source
+        ? Array.from(source as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string])
+        : Object.entries<string | readonly string[] | undefined>(source);
+    const layer: [string, string | readonly string[]][] = [];
+    for (const [name, value] of entries) {
+      if (value !== undefined && !seen.has(name.toLowerCase())) layer.push([name, value]);
+    }
+    for (const [name] of layer) seen.add(name.toLowerCase());
+    layers.push(layer);
+  }
+  return Object.fromEntries(layers.reverse().flat()) as Extract<RequestInit['headers'], Record<string, unknown>>;
+};
 
 export type listMeetingTypesResponse200 = {
   data: MeetingType[]
@@ -44,4 +67,56 @@ export const listMeetingTypes = async ( options?: RequestInit): Promise<listMeet
 
   const data: listMeetingTypesResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as listMeetingTypesResponse
+}
+
+
+
+export type createMeetingTypeResponse201 = {
+  data: MeetingType
+  status: 201
+}
+
+export type createMeetingTypeResponse400 = {
+  data: CreateMeetingType400
+  status: 400
+}
+
+export type createMeetingTypeResponse409 = {
+  data: CreateMeetingType409
+  status: 409
+}
+
+export type createMeetingTypeResponseSuccess = (createMeetingTypeResponse201) & {
+  headers: Headers;
+};
+export type createMeetingTypeResponseError = (createMeetingTypeResponse400 | createMeetingTypeResponse409) & {
+  headers: Headers;
+};
+
+export type createMeetingTypeResponse = (createMeetingTypeResponseSuccess | createMeetingTypeResponseError)
+
+export const getCreateMeetingTypeUrl = () => {
+
+
+
+
+  return `${globalThis.location?.origin ?? ""}/api/meeting-types`
+}
+
+export const createMeetingType = async (createMeetingTypeInput: CreateMeetingTypeInput, options?: RequestInit): Promise<createMeetingTypeResponse> => {
+
+  const res = await fetch(getCreateMeetingTypeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
+    body: JSON.stringify(createMeetingTypeInput)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: createMeetingTypeResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createMeetingTypeResponse
 }

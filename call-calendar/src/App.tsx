@@ -38,7 +38,9 @@ function App({ pathname = '/' }: { pathname?: string }) {
           </nav>
         ) : (
           <>
-            {currentPath === bookingPath && <MeetingTypeList />}
+            {(currentPath === bookingPath || currentPath === ownerPath) && (
+              <MeetingTypeList allowCreation={currentPath === ownerPath} />
+            )}
             <a href="/" className={`mt-8 inline-block ${textLink}`}>На главную</a>
           </>
         )}

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import CreateMeetingTypeForm from './CreateMeetingTypeForm'
 import { listMeetingTypes } from './api/generated/sdk.gen'
 import type { MeetingType } from './api/generated/models/meetingType'
 
-function MeetingTypeList() {
+function MeetingTypeList({ allowCreation = false }: { allowCreation?: boolean }) {
   const [meetingTypes, setMeetingTypes] = useState<MeetingType[] | 'loading' | 'error'>('loading')
 
   useEffect(() => {
@@ -29,20 +30,27 @@ function MeetingTypeList() {
   if (meetingTypes === 'error') {
     return <p className="mt-6" role="alert">Не удалось загрузить типы встреч.</p>
   }
-  if (meetingTypes.length === 0) {
-    return <p className="mt-6 text-muted-foreground">Типов встреч пока нет.</p>
-  }
-
   return (
-    <ul className="mt-6 grid gap-3">
-      {meetingTypes.map((meetingType) => (
-        <li key={meetingType.id} className="rounded-lg border p-4">
-          <h2 className="font-semibold">{meetingType.name}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{meetingType.description}</p>
-          <p className="mt-2 text-sm">{meetingType.durationMinutes} мин</p>
-        </li>
-      ))}
-    </ul>
+    <>
+      {meetingTypes.length === 0 ? (
+        <p className="mt-6 text-muted-foreground">Типов встреч пока нет.</p>
+      ) : (
+        <ul className="mt-6 grid gap-3">
+          {meetingTypes.map((meetingType) => (
+            <li key={meetingType.id} className="rounded-lg border p-4">
+              <h2 className="font-semibold">{meetingType.name}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{meetingType.description}</p>
+              <p className="mt-2 text-sm">{meetingType.durationMinutes} мин</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      {allowCreation && (
+        <CreateMeetingTypeForm onCreated={(created) => {
+          setMeetingTypes((current) => Array.isArray(current) ? [...current, created] : [created])
+        }} />
+      )}
+    </>
   )
 }
 
