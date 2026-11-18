@@ -6,9 +6,9 @@ import type { Connect, Plugin } from "vite"
 import type { MeetingType } from "./src/api/generated/models/meetingType.ts"
 import { createCalendarApi } from "./server/api.ts"
 
-function calendarApi(initialMeetingTypes?: readonly MeetingType[]): Plugin {
+function calendarApi(initialMeetingTypes?: readonly MeetingType[], now?: () => Date): Plugin {
   function mount(server: { middlewares: Connect.Server }) {
-    const handleRequest = createCalendarApi(initialMeetingTypes)
+    const handleRequest = createCalendarApi(initialMeetingTypes, now)
     server.middlewares.use((request, response, next) => {
       if (!handleRequest(request, response)) next()
     })
@@ -22,9 +22,9 @@ function calendarApi(initialMeetingTypes?: readonly MeetingType[]): Plugin {
 }
 
 // https://vite.dev/config/
-export function createCalendarConfig(initialMeetingTypes?: readonly MeetingType[]) {
+export function createCalendarConfig(initialMeetingTypes?: readonly MeetingType[], now?: () => Date) {
   return defineConfig({
-    plugins: [react(), tailwindcss(), calendarApi(initialMeetingTypes)],
+    plugins: [react(), tailwindcss(), calendarApi(initialMeetingTypes, now)],
     resolve: {
       alias: {
         "@": path.resolve(import.meta.dirname, "./src"),

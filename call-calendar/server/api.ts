@@ -1,6 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { CreateMeetingType400FieldErrors } from '../src/api/generated/models/createMeetingType400FieldErrors.ts'
 import type { MeetingType } from '../src/api/generated/models/meetingType.ts'
+import { calendarTimeZone } from '../src/lib/calendar-time.ts'
+import { isBookableDate, workingSlots } from './availability.ts'
 import { createMeetingTypeStore } from './meeting-types.ts'
 
 function sendJson(response: ServerResponse, status: number, body: unknown) {
@@ -8,7 +10,10 @@ function sendJson(response: ServerResponse, status: number, body: unknown) {
   response.end(JSON.stringify(body))
 }
 
-export function createCalendarApi(initialMeetingTypes: readonly MeetingType[] = []) {
+export function createCalendarApi(
+  initialMeetingTypes: readonly MeetingType[] = [],
+  now: () => Date = () => new Date(),
+) {
   const meetingTypes = createMeetingTypeStore(initialMeetingTypes)
 
   async function createMeetingType(request: IncomingMessage, response: ServerResponse) {
@@ -41,7 +46,23 @@ export function createCalendarApi(initialMeetingTypes: readonly MeetingType[] = 
   }
 
   return function handleCalendarApi(request: IncomingMessage, response: ServerResponse) {
-    const pathname = new URL(request.url ?? '/', 'http://localhost').pathname
+    const { pathname, searchParams } = new URL(request.url ?? '/', 'http://localhost')
+    const availabilityRoute = /^\/api\/meeting-types\/([^/]+)\/slots$/.exec(pathname)
+    if (request.method === 'GET' && availabilityRoute) {
+      const meetingType = meetingTypes.get(availabilityRoute[1])
+      const date = searchParams.get('date') ?? ''
+      if (!meetingType) {
+        sendJson(response, 404, { message: 'Тип встречи не найден.' })
+      } else if (!isBookableDate(date, now())) {
+        sendJson(response, 400, { message: 'Выберите дату в пределах 14 дней с завтрашнего дня по Москве.' })
+      } else {
+        sendJson(response, 200, {
+          timeZone: calendarTimeZone,
+          slots: workingSlots(date, meetingType.durationMinutes),
+        })
+      }
+      return true
+    }
     if (pathname !== '/api/meeting-types') return false
 
     if (request.method === 'GET') {

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
+import BookingAvailability from './BookingAvailability'
 import CreateMeetingTypeForm from './CreateMeetingTypeForm'
 import { listMeetingTypes } from './api/generated/sdk.gen'
 import type { MeetingType } from './api/generated/models/meetingType'
 
 function MeetingTypeList({ allowCreation = false }: { allowCreation?: boolean }) {
+  const [selectedId, setSelectedId] = useState<string>()
   const [meetingTypes, setMeetingTypes] = useState<MeetingType[] | 'loading' | 'error'>('loading')
 
   useEffect(() => {
@@ -38,13 +40,25 @@ function MeetingTypeList({ allowCreation = false }: { allowCreation?: boolean })
         <ul className="mt-6 grid gap-3">
           {meetingTypes.map((meetingType) => (
             <li key={meetingType.id} className="rounded-lg border p-4">
-              <h2 className="font-semibold">{meetingType.name}</h2>
+              <h2 className="font-semibold">
+                {allowCreation ? meetingType.name : (
+                  <button
+                    type="button"
+                    aria-pressed={selectedId === meetingType.id}
+                    onClick={() => setSelectedId(meetingType.id)}
+                    className="min-h-11 cursor-pointer rounded-sm text-left underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
+                  >
+                    {meetingType.name}
+                  </button>
+                )}
+              </h2>
               <p className="mt-1 text-sm text-muted-foreground">{meetingType.description}</p>
               <p className="mt-2 text-sm">{meetingType.durationMinutes} мин</p>
             </li>
           ))}
         </ul>
       )}
+      {selectedId && <BookingAvailability key={selectedId} meetingTypeId={selectedId} />}
       {allowCreation && (
         <CreateMeetingTypeForm onCreated={(created) => {
           setMeetingTypes((current) => Array.isArray(current) ? [...current, created] : [created])
