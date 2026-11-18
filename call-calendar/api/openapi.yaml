@@ -4,6 +4,62 @@ info:
   version: 0.0.0
 tags: []
 paths:
+  /api/bookings:
+    post:
+      operationId: createBooking
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          headers:
+            Set-Cookie:
+              required: false
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  fieldErrors:
+                    type: object
+                    properties:
+                      meetingTypeId:
+                        type: string
+                      start:
+                        type: string
+                      guestName:
+                        type: string
+                      guestEmail:
+                        type: string
+                required:
+                  - message
+                  - fieldErrors
+        '409':
+          description: The request conflicts with the current state of the server.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingInput'
   /api/meeting-types:
     get:
       operationId: listMeetingTypes
@@ -134,6 +190,43 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Slot'
+    Booking:
+      type: object
+      required:
+        - id
+        - meetingType
+        - guestName
+        - guestEmail
+      properties:
+        id:
+          type: string
+        meetingType:
+          $ref: '#/components/schemas/MeetingType'
+        guestName:
+          type: string
+        guestEmail:
+          type: string
+      allOf:
+        - $ref: '#/components/schemas/Slot'
+    CreateBookingInput:
+      type: object
+      required:
+        - meetingTypeId
+        - start
+        - guestName
+        - guestEmail
+      properties:
+        meetingTypeId:
+          type: string
+        start:
+          type: string
+          format: date-time
+        guestName:
+          type: string
+          minLength: 1
+        guestEmail:
+          type: string
+          format: email
     CreateMeetingTypeInput:
       type: object
       required:

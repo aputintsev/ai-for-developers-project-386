@@ -6,6 +6,10 @@
  */
 import type {
   Availability,
+  Booking,
+  CreateBooking400,
+  CreateBooking409,
+  CreateBookingInput,
   CreateMeetingType400,
   CreateMeetingType409,
   CreateMeetingTypeInput,
@@ -34,6 +38,58 @@ const getHeaders = (...sources: (RequestInit['headers'] | Record<string, string 
   }
   return Object.fromEntries(layers.reverse().flat()) as Extract<RequestInit['headers'], Record<string, unknown>>;
 };
+
+export type createBookingResponse201 = {
+  data: Booking
+  status: 201
+}
+
+export type createBookingResponse400 = {
+  data: CreateBooking400
+  status: 400
+}
+
+export type createBookingResponse409 = {
+  data: CreateBooking409
+  status: 409
+}
+
+export type createBookingResponseSuccess = (createBookingResponse201) & {
+  headers: Headers;
+};
+export type createBookingResponseError = (createBookingResponse400 | createBookingResponse409) & {
+  headers: Headers;
+};
+
+export type createBookingResponse = (createBookingResponseSuccess | createBookingResponseError)
+
+export const getCreateBookingUrl = () => {
+
+
+
+
+  return `${globalThis.location?.origin ?? ""}/api/bookings`
+}
+
+export const createBooking = async (createBookingInput: CreateBookingInput, options?: RequestInit): Promise<createBookingResponse> => {
+
+  const res = await fetch(getCreateBookingUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
+    body: JSON.stringify(createBookingInput)
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: createBookingResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as createBookingResponse
+}
+
+
 
 export type listMeetingTypesResponse200 = {
   data: MeetingType[]

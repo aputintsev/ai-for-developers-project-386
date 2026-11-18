@@ -4,7 +4,7 @@
  * Календарь звонков
  * OpenAPI spec version: 0.0.0
  */
-import type { CreateMeetingType400FieldErrors } from './createMeetingType400FieldErrors';
+import type { CreateMeetingType400FieldErrors } from './createMeetingType400FieldErrors.ts';
 
 export type CreateMeetingType400 = {
   message: string;
