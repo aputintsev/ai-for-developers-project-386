@@ -5,9 +5,13 @@
  * OpenAPI spec version: 0.0.0
  */
 import type {
+  Availability,
   CreateMeetingType400,
   CreateMeetingType409,
   CreateMeetingTypeInput,
+  ListSlots400,
+  ListSlots404,
+  ListSlotsParams,
   MeetingType
 } from './models';
 
@@ -119,4 +123,65 @@ export const createMeetingType = async (createMeetingTypeInput: CreateMeetingTyp
 
   const data: createMeetingTypeResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as createMeetingTypeResponse
+}
+
+
+
+export type listSlotsResponse200 = {
+  data: Availability
+  status: 200
+}
+
+export type listSlotsResponse400 = {
+  data: ListSlots400
+  status: 400
+}
+
+export type listSlotsResponse404 = {
+  data: ListSlots404
+  status: 404
+}
+
+export type listSlotsResponseSuccess = (listSlotsResponse200) & {
+  headers: Headers;
+};
+export type listSlotsResponseError = (listSlotsResponse400 | listSlotsResponse404) & {
+  headers: Headers;
+};
+
+export type listSlotsResponse = (listSlotsResponseSuccess | listSlotsResponseError)
+
+export const getListSlotsUrl = (meetingTypeId: string,
+    params: ListSlotsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `${globalThis.location?.origin ?? ""}/api/meeting-types/${meetingTypeId}/slots?${stringifiedParams}` : `${globalThis.location?.origin ?? ""}/api/meeting-types/${meetingTypeId}/slots`
+}
+
+export const listSlots = async (meetingTypeId: string,
+    params: ListSlotsParams, options?: RequestInit): Promise<listSlotsResponse> => {
+
+  const res = await fetch(getListSlotsUrl(meetingTypeId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: listSlotsResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listSlotsResponse
 }
