@@ -103,6 +103,11 @@ export function createCalendarApi(
 
   return function handleCalendarApi(request: IncomingMessage, response: ServerResponse) {
     const { pathname, searchParams } = new URL(request.url ?? '/', 'http://localhost')
+    if (pathname === '/api/owner/bookings' && request.method === 'GET') {
+      sendJson(response, 200, bookings.listUpcoming(now()))
+      return true
+    }
+
     if (pathname === '/api/bookings' && request.method === 'POST') {
       void createBooking(request, response).catch(() => {
         sendJson(response, 400, { message: 'Не удалось прочитать данные.', fieldErrors: {} })

@@ -1,4 +1,5 @@
 import MeetingTypeList from './MeetingTypeList'
+import OwnerPage from './OwnerPage'
 import { buttonVariants } from './components/ui/button'
 
 const bookingPath = '/book'
@@ -38,9 +39,8 @@ function App({ pathname = '/' }: { pathname?: string }) {
           </nav>
         ) : (
           <>
-            {(currentPath === bookingPath || currentPath === ownerPath) && (
-              <MeetingTypeList allowCreation={currentPath === ownerPath} />
-            )}
+            {currentPath === bookingPath && <MeetingTypeList />}
+            {currentPath === ownerPath && <OwnerPage />}
             <a href="/" className={`mt-8 inline-block ${textLink}`}>На главную</a>
           </>
         )}

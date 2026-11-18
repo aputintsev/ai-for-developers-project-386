@@ -12,6 +12,14 @@ export function createBookingStore() {
 
   return {
     isFree,
+    listUpcoming(now: Date, profileKey?: string) {
+      const after = now.toISOString()
+      return bookings
+        .filter(({ booking, guestProfileKey }) => booking.start > after
+          && (profileKey === undefined || guestProfileKey === profileKey))
+        .map(({ booking }) => booking)
+        .sort((first, second) => first.start.localeCompare(second.start))
+    },
     create(input: Omit<Booking, 'id'>, guestProfileKey: string) {
       if (!isFree(input)) return undefined
 
