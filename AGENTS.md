@@ -29,6 +29,9 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) fo
 [optional body]
 [optional footer(s)]
 
+Append the issue number to the subject of each commit that implements a ticket.
+Example: `feat: запись на свободный слот (#12)`.
+
 Types:
 feat: New feature
 fix: Bug fix
