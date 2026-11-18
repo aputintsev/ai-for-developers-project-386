@@ -1,7 +1,7 @@
 FROM node:24.22.3-bookworm-slim AS build
 WORKDIR /app
 COPY call-calendar/package.json call-calendar/package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,id=call-calendar-npm,target=/root/.npm npm ci
 COPY call-calendar/index.html call-calendar/tsconfig*.json call-calendar/vite.config.ts ./
 COPY call-calendar/public ./public
 COPY call-calendar/server ./server
