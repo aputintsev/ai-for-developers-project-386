@@ -68,7 +68,7 @@ mise run setup
 mise run check
 ```
 
-`setup` installs npm dependencies from the lockfile and installs hk Git hooks.
+`setup` installs npm dependencies from the lockfile, Playwright Chromium, and hk Git hooks.
 `check` runs ESLint (warnings fail), secret history scanning, GitHub Actions lint,
 Renovate schema validation, TypeScript/Vite build, smoke tests, and OSV vulnerability
 scanning. OSV needs network access. GitHub Actions runs this same command on every
@@ -99,3 +99,14 @@ are reproduced by `call-calendar/package-lock.json`.
 
 The npm override for `minimatch` keeps transitive copies on the patched v11 line
 (GHSA-g3hv-75wg-m249). Revisit the override when upstream dependencies upgrade.
+
+After editing the API contract in `call-calendar/api/main.tsp`, regenerate OpenAPI
+and the TypeScript SDK in order.
+
+```sh
+mise run generate:openapi
+mise run generate:sdk
+```
+
+Browser tests default to Playwright Chromium. Set `PLAYWRIGHT_CHROMIUM_CHANNEL=chrome`
+to run them with an existing Google Chrome installation.

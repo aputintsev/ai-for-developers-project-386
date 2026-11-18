@@ -32,5 +32,7 @@ jobs:
           version: 2026.11.8
       - name: Install application dependencies
         run: npm --prefix call-calendar ci
+      - name: Install Chromium for browser tests
+        run: npm --prefix call-calendar run install:browser -- --with-deps
       - name: Check
         run: mise run check

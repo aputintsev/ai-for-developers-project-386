@@ -1,0 +1,42 @@
+openapi: 3.0.0
+info:
+  title: Календарь звонков
+  version: 0.0.0
+tags: []
+paths:
+  /api/meeting-types:
+    get:
+      operationId: listMeetingTypes
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeetingType'
+components:
+  schemas:
+    MeetingType:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - durationMinutes
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+          minLength: 1
+        durationMinutes:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 480

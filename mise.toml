@@ -20,7 +20,7 @@ shellcheck = "0.11.0"
 "pipx:check-jsonschema" = "0.39.0"
 
 [tasks.setup]
-run = ["npm --prefix call-calendar ci", "hk install"]
+run = ["npm --prefix call-calendar ci", "mise run install:browser", "hk install"]
 
 [tasks.check]
 run = ["hk check --all", "mise run build", "mise run smoke", "mise run vulnerabilities"]
@@ -64,3 +64,12 @@ run = "mise daemons logs web"
 [daemons.web]
 run = "exec npm --prefix call-calendar run dev -- --host 127.0.0.1 --port 5173 --strictPort"
 ready_port = 5173
+
+[tasks."generate:openapi"]
+run = "npm --prefix call-calendar run generate:openapi"
+
+[tasks."generate:sdk"]
+run = "npm --prefix call-calendar run generate:sdk"
+
+[tasks."install:browser"]
+run = "npm --prefix call-calendar run install:browser"
