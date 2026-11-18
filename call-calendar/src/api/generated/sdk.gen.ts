@@ -241,3 +241,43 @@ export const listSlots = async (meetingTypeId: string,
   const data: listSlotsResponse['data'] = body ? JSON.parse(body) : {}
   return { data, status: res.status, headers: res.headers } as listSlotsResponse
 }
+
+
+
+export type listOwnerBookingsResponse200 = {
+  data: Booking[]
+  status: 200
+}
+
+export type listOwnerBookingsResponseSuccess = (listOwnerBookingsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listOwnerBookingsResponse = (listOwnerBookingsResponseSuccess)
+
+export const getListOwnerBookingsUrl = () => {
+
+
+
+
+  return `${globalThis.location?.origin ?? ""}/api/owner/bookings`
+}
+
+export const listOwnerBookings = async ( options?: RequestInit): Promise<listOwnerBookingsResponse> => {
+
+  const res = await fetch(getListOwnerBookingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: listOwnerBookingsResponse['data'] = body ? JSON.parse(body) : {}
+  return { data, status: res.status, headers: res.headers } as listOwnerBookingsResponse
+}

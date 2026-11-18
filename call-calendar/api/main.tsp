@@ -135,3 +135,8 @@ model BookingTimeConflict {
 @operationId("createBooking")
 op createBooking(@body input: CreateBookingInput):
   BookingCreated | BookingValidationError | BookingTimeConflict;
+
+@get
+@route("/api/owner/bookings")
+@operationId("listOwnerBookings")
+op listOwnerBookings(): Booking[];
