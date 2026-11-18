@@ -55,3 +55,35 @@ model MeetingTypeNameConflict {
 @operationId("createMeetingType")
 op createMeetingType(@body input: CreateMeetingTypeInput):
   MeetingTypeCreated | MeetingTypeValidationError | MeetingTypeNameConflict;
+
+model Slot {
+  start: utcDateTime;
+  end: utcDateTime;
+}
+
+model Availability {
+  timeZone: "Europe/Moscow";
+  slots: Slot[];
+}
+
+@error
+model AvailabilityDateError {
+  @statusCode statusCode: 400;
+  @body error: {
+    message: string;
+  };
+}
+
+@error
+model AvailabilityMeetingTypeNotFound {
+  @statusCode statusCode: 404;
+  @body error: {
+    message: string;
+  };
+}
+
+@get
+@route("/api/meeting-types/{meetingTypeId}/slots")
+@operationId("listSlots")
+op listSlots(@path meetingTypeId: string, @query date: plainDate):
+  Availability | AvailabilityDateError | AvailabilityMeetingTypeNotFound;

@@ -5,9 +5,15 @@
  * OpenAPI spec version: 0.0.0
  */
 
+export * from './availability';
+export * from './availabilityTimeZone';
 export * from './createMeetingType400';
 export * from './createMeetingType400FieldErrors';
 export * from './createMeetingType409';
 export * from './createMeetingType409FieldErrors';
 export * from './createMeetingTypeInput';
+export * from './listSlots400';
+export * from './listSlots404';
+export * from './listSlotsParams';
 export * from './meetingType';
+export * from './slot';
