@@ -16,9 +16,9 @@ const guest = { guestName: 'Анна', guestEmail: 'anna@example.com' }
 const conflictMessage = 'Это время уже занято. Выберите другое время'
 let server
 
-async function startCalendar() {
+async function startCalendar(meetingTypes = [intro, followUp]) {
   server = await createServer({
-    ...createCalendarConfig([intro, followUp], () => now),
+    ...createCalendarConfig(meetingTypes, () => now),
     configFile: false,
     server: { host: '127.0.0.1', port: 0, open: false },
   })
@@ -39,10 +39,11 @@ afterEach(async () => {
 })
 
 test('only one concurrent request can book partially overlapping slots across meeting types', async () => {
-  const baseUrl = await startCalendar()
+  const types = [{ ...intro, durationMinutes: 60 }, { ...followUp, durationMinutes: 30 }]
+  const baseUrl = await startCalendar(types)
   const requests = [
     { ...guest, meetingTypeId: intro.id, start },
-    { ...guest, meetingTypeId: followUp.id, start: '2026-11-20T07:15:00.000Z' },
+    { ...guest, meetingTypeId: followUp.id, start: '2026-11-20T07:30:00.000Z' },
   ]
   const responses = await Promise.all(requests.map((input) => book(baseUrl, input)))
   expect(responses.map(({ status }) => status).sort()).toEqual([201, 409])
@@ -52,20 +53,29 @@ test('only one concurrent request can book partially overlapping slots across me
   expect(booking).toEqual({
     ...guest,
     id: expect.any(String),
-    meetingType: [intro, followUp][winner],
+    meetingType: types[winner],
     start: requests[winner].start,
-    end: '2026-11-20T07:30:00.000Z',
+    end: '2026-11-20T08:00:00.000Z',
   })
   expect(await responses[1 - winner].json()).toEqual({ message: conflictMessage })
 
   const slotsResponse = await fetch(`${baseUrl}/api/meeting-types/intro/slots?date=2026-11-20`)
   expect(slotsResponse.status).toBe(200)
   const { slots } = await slotsResponse.json()
-  expect(slots[0]).toEqual({ start: '2026-11-20T07:30:00.000Z', end: '2026-11-20T08:00:00.000Z' })
+  expect(slots[0]).toEqual({ start: '2026-11-20T08:00:00.000Z', end: '2026-11-20T09:00:00.000Z' })
 
   const adjacent = await book(baseUrl, { ...guest, meetingTypeId: intro.id, start: booking.end })
   expect(adjacent.status).toBe(201)
-  expect(await adjacent.json()).toMatchObject({ start: booking.end, end: '2026-11-20T08:00:00.000Z' })
+  expect(await adjacent.json()).toMatchObject({ start: booking.end, end: '2026-11-20T09:00:00.000Z' })
+})
+
+test('rejects a second booking across meeting types at the same start time', async () => {
+  const baseUrl = await startCalendar()
+  const first = await book(baseUrl, { ...guest, meetingTypeId: intro.id, start })
+  expect(first.status).toBe(201)
+  const duplicate = await book(baseUrl, { ...guest, meetingTypeId: followUp.id, start })
+  expect(duplicate.status).toBe(409)
+  expect(await duplicate.json()).toEqual({ message: conflictMessage })
 })
 
 test('the API reports invalid contact fields and rejects out-of-window and off-hours starts', async () => {

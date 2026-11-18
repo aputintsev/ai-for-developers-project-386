@@ -62,6 +62,13 @@ test('the API applies both booking-window boundaries by the Moscow calendar', as
   }
 })
 
+test('the API returns 404 and an error body for an unknown meeting type', async () => {
+  const baseUrl = await startCalendar()
+  const response = await fetch(`${baseUrl}/api/meeting-types/missing/slots?date=2026-11-20`)
+  expect(response.status).toBe(404)
+  expect(await response.json()).toEqual({ message: 'Тип встречи не найден.' })
+})
+
 test.each(['2026-11-21', '2026-11-22'])('the API returns no slots on weekend date %s', async (date) => {
   const baseUrl = await startCalendar()
   const response = await fetch(`${baseUrl}/api/meeting-types/intro/slots?date=${date}`)

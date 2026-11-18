@@ -36,3 +36,7 @@ jobs:
         run: npm --prefix call-calendar run install:browser -- --with-deps
       - name: Check
         run: mise run check
+      - name: Verify generated API artifacts
+        run: |
+          git diff --exit-code HEAD -- call-calendar/api/openapi.yaml call-calendar/src/api/generated
+          test -z "$(git ls-files --others --exclude-standard -- call-calendar/api/openapi.yaml call-calendar/src/api/generated)"

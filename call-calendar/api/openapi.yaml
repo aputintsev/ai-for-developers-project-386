@@ -7,7 +7,13 @@ paths:
   /api/bookings:
     post:
       operationId: createBooking
-      parameters: []
+      parameters:
+        - name: calendarGuest
+          in: cookie
+          required: false
+          schema:
+            type: string
+          explode: false
       responses:
         '201':
           description: The request has succeeded and a new resource has been created as a result.
@@ -63,7 +69,13 @@ paths:
   /api/guest/bookings:
     get:
       operationId: listGuestBookings
-      parameters: []
+      parameters:
+        - name: calendarGuest
+          in: cookie
+          required: false
+          schema:
+            type: string
+          explode: false
       responses:
         '200':
           description: The request has succeeded.

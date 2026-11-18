@@ -23,7 +23,7 @@ shellcheck = "0.11.0"
 run = ["npm --prefix call-calendar ci", "mise run install:browser", "hk install"]
 
 [tasks.check]
-run = ["hk check --all", "mise run build", "mise run smoke", "mise run vulnerabilities"]
+run = ["mise run generate:api", "hk check --all", "mise run build", "mise run smoke", "mise run vulnerabilities"]
 
 [tasks.lint]
 run = "npm --prefix call-calendar run lint -- --max-warnings 0"
@@ -64,6 +64,9 @@ run = "mise daemons logs web"
 [daemons.web]
 run = "exec npm --prefix call-calendar run dev -- --host 127.0.0.1 --port 5173 --strictPort"
 ready_port = 5173
+
+[tasks."generate:api"]
+run = ["mise run generate:openapi", "mise run generate:sdk"]
 
 [tasks."generate:openapi"]
 run = "npm --prefix call-calendar run generate:openapi"

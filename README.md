@@ -132,8 +132,7 @@ After editing the API contract in `call-calendar/api/main.tsp`, regenerate OpenA
 and the TypeScript SDK in order.
 
 ```sh
-mise run generate:openapi
-mise run generate:sdk
+mise run generate:api
 ```
 
 Browser tests default to Playwright Chromium. Set `PLAYWRIGHT_CHROMIUM_CHANNEL=chrome`

@@ -133,7 +133,7 @@ model BookingTimeConflict {
 @post
 @route("/api/bookings")
 @operationId("createBooking")
-op createBooking(@body input: CreateBookingInput):
+op createBooking(@body input: CreateBookingInput, @cookie("calendarGuest") guestProfileKey?: string):
   BookingCreated | BookingValidationError | BookingTimeConflict;
 
 @get
@@ -146,4 +146,4 @@ model GuestBooking is OmitProperties<Booking, "guestName" | "guestEmail">;
 @get
 @route("/api/guest/bookings")
 @operationId("listGuestBookings")
-op listGuestBookings(): GuestBooking[];
+op listGuestBookings(@cookie("calendarGuest") guestProfileKey?: string): GuestBooking[];
