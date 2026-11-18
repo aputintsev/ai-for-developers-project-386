@@ -10,6 +10,10 @@ import { bookingWindow, calendarTimeZone, moscowDateDetails, moscowTimeRange } f
 
 const inputClass = 'min-h-11 rounded-md border bg-background px-3'
 
+function focusConflictMessage(element: HTMLParagraphElement | null) {
+  element?.focus()
+}
+
 function BookingDetails({ meetingType, slot }: { meetingType: MeetingType; slot: Slot }) {
   const { date, dateLabel } = moscowDateDetails(slot.start)
   return (
@@ -105,7 +109,16 @@ function BookingDay({ meetingType, date, submitting, setSubmitting }: BookingSub
 
   return (
     <>
-      {message && <p role="alert">{message}</p>}
+      {message && (
+        <p
+          role="alert"
+          className="rounded-md border border-destructive p-3 text-sm text-destructive"
+          tabIndex={slot ? undefined : -1}
+          ref={slot ? undefined : focusConflictMessage}
+        >
+          {message}
+        </p>
+      )}
       {slot ? (
         <form aria-labelledby="booking-form" className="grid gap-4 rounded-lg border p-4" onSubmit={confirm} noValidate>
           <h2 id="booking-form" className="text-lg font-semibold">Подтверждение записи</h2>

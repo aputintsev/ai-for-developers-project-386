@@ -176,6 +176,39 @@ test('a Guest keeps contact details after a slot conflict and confirms a new tim
   }
 }, 15_000)
 
+test('a slot conflict brings the message into view after another Guest books the same time', async () => {
+  const baseUrl = await startCalendar()
+  const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHROMIUM_CHANNEL })
+  try {
+    const first = await browser.newPage({ viewport: { width: 375, height: 500 } })
+    const second = await browser.newPage()
+    for (const page of [first, second]) {
+      await page.clock.setFixedTime(now)
+      await page.goto(`${baseUrl}/book`)
+      await page.getByRole('button', { name: intro.name, exact: true }).click()
+      await page.getByLabel('Дата встречи').fill('2026-11-20')
+      await page.getByRole('button', { name: '10:00–10:30' }).click()
+      await page.getByLabel('Имя', { exact: true }).fill(guest.guestName)
+      await page.getByLabel('Email', { exact: true }).fill(guest.guestEmail)
+    }
+
+    await second.getByRole('button', { name: 'Подтвердить запись' }).click()
+    await second.getByRole('heading', { name: 'Вы записаны' }).waitFor()
+
+    const confirm = first.getByRole('button', { name: 'Подтвердить запись' })
+    await confirm.evaluate((button) => button.scrollIntoView({ block: 'center' }))
+    await confirm.click()
+    await first.getByRole('button', { name: '10:30–11:00' }).waitFor()
+    const alert = first.getByRole('alert').filter({ hasText: conflictMessage })
+    await alert.waitFor()
+    const { y, height } = await alert.boundingBox()
+    expect(y).toBeGreaterThanOrEqual(0)
+    expect(y + height).toBeLessThanOrEqual(first.viewportSize().height)
+  } finally {
+    await browser.close()
+  }
+}, 15_000)
+
 test('two fresh tabs keep both bookings in the same Guest profile', async () => {
   const baseUrl = await startCalendar()
   const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHROMIUM_CHANNEL })
