@@ -79,17 +79,26 @@ docker rm call-calendar
 Render MCP позволяет проверять состояние сервиса `call-calendar`, смотреть логи
 и запускать развёртывание из Codex. Для просмотра приложения подключение не требуется.
 
-1. Добавьте Render MCP в Codex.
+1. Откройте репозиторий как доверенный проект в Codex. Из корня репозитория
+   скопируйте [шаблон Render MCP](.codex/config.toml.example):
 
    ```sh
-   codex mcp add render --url https://mcp.render.com/mcp --oauth-client-id codex
+   cp -n .codex/config.toml.example .codex/config.toml
    ```
 
-2. Войдите в Render в браузере и подтвердите доступ через OAuth. Ключ API для
-   этого способа подключения не нужен.
-3. Попросите Codex вывести список рабочих пространств Render. Выберите
-   пространство с сервисом `call-calendar` и попросите вывести список его сервисов,
-   чтобы проверить подключение.
+   Если `.codex/config.toml` уже существует, перенесите в него секции Render из
+   шаблона, сохранив остальные настройки.
+2. Из корня репозитория запустите вход и подтвердите доступ в браузере.
+
+   ```sh
+   codex mcp login render
+   ```
+
+   Codex хранит данные OAuth-сессии локально. Ключ API для этого способа
+   подключения не нужен. Локальный `.codex/config.toml` исключён из Git.
+3. Выполните `codex mcp list` и убедитесь, что `render` включён. Откройте новую
+   сессию Codex и попросите вывести список рабочих пространств Render и сервисов
+   в пространстве с `call-calendar`.
 
 [Документация Render MCP](https://render.com/docs/mcp-server)
 
